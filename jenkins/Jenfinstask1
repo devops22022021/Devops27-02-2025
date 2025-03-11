@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    stages {
+        stage('Get Master & Slave Details') {
+            steps {
+                script {
+                    // Get Jenkins instance
+                    def jenkins = Jenkins.instance
+
+                    // Get Master Node details
+                    def masterNode = jenkins.getComputer("")
+                    echo "Master Node:"
+                    echo "Name: ${masterNode.displayName}"
+                    echo "Online: ${masterNode.online}"
+                    echo "Executors: ${masterNode.numExecutors}"
+
+                    // Get Slave/Agent Node details
+                    def slaveNodes = jenkins.nodes
+                    if (slaveNodes.size() > 0) {
+                        echo "Slave Nodes Details:"
+                        slaveNodes.each { node ->
+                            def computer = node.toComputer()
+                            if (computer) {
+                                echo "---------------------"
+                                echo "Name: ${computer.name}"
+                                echo "Online: ${computer.online}"
+                                echo "Executors: ${computer.numExecutors}"
+                                echo "Labels: ${node.getAssignedLabels()*.name.join(', ')}"
+                                echo "OS: ${computer.systemProperties['os.name']}"
+                            }
+                        }
+                    } else {
+                        echo "No Slave Nodes found."
+                    }
+                }
+            }
+        }
+    }
+}
