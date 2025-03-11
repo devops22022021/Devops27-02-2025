@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    environment {
+        BACKUP_DIR = "/var/jenkins_backup"  // Change as needed
+        JENKINS_HOME = "/var/lib/jenkins"  // Default Jenkins home directory
+        TIMESTAMP = "${new Date().format('yyyy-MM-dd_HH-mm-ss')}"
+    }
+    stages {
+        stage('Create Backup Directory') {
+            steps {
+                script {
+                    sh "mkdir -p ${BACKUP_DIR}"
+                }
+            }
+        }
+        stage('Backup Jenkins Data') {
+            steps {
+                script {
+                    sh """
+                    tar -czvf ${BACKUP_DIR}/jenkins_backup_${TIMESTAMP}.tar.gz ${JENKINS_HOME} --exclude=${JENKINS_HOME}/workspace --exclude=${JENKINS_HOME}/logs
+                    """
+                    echo "Backup created at ${BACKUP_DIR}/jenkins_backup_${TIMESTAMP}.tar.gz"
+                }
+            }
+        }
+        stage('Cleanup Old Backups') {
+            steps {
+                script {
+                    sh "find ${BACKUP_DIR} -type f -name 'jenkins_backup_*.tar.gz' -mtime +7 -delete"
+                    echo "Old backups (older than 7 days) deleted."
+                }
+            }
+        }
+    }
+}
