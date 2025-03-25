@@ -9,7 +9,7 @@ pipeline{
               """
             }
         }
-        stages('deploy'){
+        stage('deploy'){
             steps {
                 sh """
                     echo "Deploying Container."
