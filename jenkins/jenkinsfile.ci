@@ -1,1 +1,29 @@
-pipeline
+pipeline{
+   agent any
+    stages{
+      stage('build'){
+        steps{
+            sh """
+                echo "Building Docker image"
+                echo "Workspace path is: " ${WORKSPACE}
+              """
+            }
+        }
+        stages('deploy'){
+            steps {
+                sh """
+                    echo "Deploying Container."
+                    docker container ls
+                  """
+              }
+          }
+      stage('verify'){
+        steps{
+                sh """
+                    docker container ls | grep c1
+                  """
+              }
+            }
+      }
+}
+}
