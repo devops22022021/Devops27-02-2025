@@ -1,29 +1,37 @@
 pipeline{
-   agent any
+    agent any
     stages{
-      stage('build'){
-        steps{
-            sh """
-                echo "Building Docker image"
-                echo "Workspace path is: " ${WORKSPACE}
-              """
+        stage('build'){
+            steps{
+                sh """
+                    echo "Building Docker image"
+                    docker image build -t yahooapp:1.0 ${WORKSPACE}/docker
+                """
+
             }
         }
         stage('deploy'){
             steps {
-                sh """
+                sh """  
+                    docker container rm -f c1 2>/dev/null  
                     echo "Deploying Container."
-                    docker container ls
-                  """
-              }
-          }
-      stage('verify'){
-        steps{
+        
+                    docker container run -d --name c1 -p 80:80 yahooapp:1.0 bash
+                    """
+
+            }
+
+        }
+        stage('verify'){
+            steps {
                 sh """
                     docker container ls | grep c1
-                  """
-              }
+                """
             }
-      }
+        }
+
+    }
+
+  
 }
 
